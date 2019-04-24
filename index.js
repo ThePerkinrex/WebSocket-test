@@ -19,7 +19,8 @@ const wss = new WebSocket.Server({server});
 
 wss.on('connection',(ws)=>{
     console.log(`someone has connected`)
-    ws.send('Hello')
+    ws.send('Hello, now some tests')
+    ws.send(JSON.stringify({b: 'TEST'})) // W/o stringyfy, the objects cant be sent
     ws.on('message', (message)=>{
         console.log(message)
         ws.send('Hello back')
