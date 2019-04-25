@@ -43,6 +43,24 @@ class WSServer {
         }
     }
 
+    onEvt(event, fn){
+        switch(event) {
+            case 'connect':
+                this.onconnect = fn
+                break
+            case 'message':
+                this.onmessage = fn
+                break
+            case 'close':
+                this.onclose = fn
+                break
+        }
+    }
+
+    onCmd(event, fn){
+        this.commandListeners[event] = fn
+    }
+
 
     /**
      * Call this to deattach a callback from a command
