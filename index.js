@@ -7,27 +7,16 @@ app.get('/', function (req, res) {
 app.get('/index.js', function (req, res) {
     res.sendFile(__dirname + '/web/index.js');
 });
-/*
-app.listen(8080, function () {
-    console.log('Example app listening on port 8080!');
+app.get('/clientWSCommand.js', function (req, res) {
+    res.sendFile(__dirname + '/web/clientWSCommand.js');
 });
-*/
-const WebSocket = require('ws');
+
 let server = require('http').createServer(app) 
 
-const wss = new WebSocket.Server({server});
-
-wss.on('connection',(ws)=>{
-    console.log(`someone has connected`)
-    ws.send('Hello, now some tests')
-    ws.send(JSON.stringify({b: 'TEST'})) // W/o stringyfy, the objects cant be sent
-    ws.on('message', (message)=>{
-        console.log(message)
-        ws.send('Hello back')
-    })
-    ws.on('close', ()=>{
-        console.log(`someone has disconnected`)
-    })
+let wss = new (require('./serverWSCommand.js'))(server)
+wss.on('test', (i, data)=>{
+    console.log(i+': '+data)
+    wss.broadcastCmd('test', {test: 'object'})
 })
 
 server.listen(8080)

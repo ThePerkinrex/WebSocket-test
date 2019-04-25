@@ -11,10 +11,15 @@ class WSServer {
 
         this.wss = new WebSocket.Server({server})
         this.connections = []
+        this.commandListeners = {}
         this.wss.on('connection', (ws)=>{
             let i = this.connections.push(ws)
             this.onconnect(ws)
-            ws.on('message', (data)=>{this.onmessage(data)})
+            ws.on('message', (data)=>{
+                this.onmessage(i, data)
+                let cmd = JSON.parse(data)
+                if(this.commandListeners[cmd.command]) this.commandListeners[cmd.command](i, cmd.data)
+            })
             ws.on('close', ()=>{
                 this.connections.splice(i,1)
                 this.onclose(ws)
@@ -33,21 +38,32 @@ class WSServer {
             case 'close':
                 this.onclose = fn
                 break
+            default:
+                this.commandListeners[event] = fn
         }
     }
 
+
+    /**
+     * Call this to deattach a callback from a command
+     * @param {String} cmd 
+     */
+    off(cmd) {
+        this.commandListeners[cmd] = undefined
+    }
+
     broadcast(data){
-        for (ws of this.connections) {
-            ws.send(JSON.stringify(data))
+        for (let ws of this.connections) {
+            ws.send(JSON.stringify({command: 'data',data}))
         }
     }
 
     send(data, idx){
-        this.connections[idx].send(JSON.stringify(data))
+        this.connections[idx].send(JSON.stringify({command: 'data',data}))
     }
 
     broadcastCmd(command, data) {
-        for (ws of this.connections) {
+        for (let ws of this.connections) {
             ws.send(JSON.stringify({command,data}))
         }
     }
@@ -56,3 +72,5 @@ class WSServer {
         this.connections[idx].send(JSON.stringify({command,data}))
     }
 }
+
+module.exports = WSServer

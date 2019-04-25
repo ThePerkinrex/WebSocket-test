@@ -3,9 +3,13 @@ class WSClient {
         this.ws = new WebSocket(url)
         this.commandListeners = {}
         this.ws.onmessage = (data) => {
-            let cmd = JSON.parse(data)
+            let cmd = JSON.parse(data.data)
             if(this.commandListeners[cmd.command]) this.commandListeners[cmd.command](cmd.data)
         }
+    }
+
+    onconnect(cb){
+        this.ws.onopen = cb
     }
 
     /**
@@ -26,5 +30,12 @@ class WSClient {
      */
     off(cmd) {
         this.commandListeners[cmd] = undefined
+    }
+
+    send(data) {
+        this.ws.send(JSON.stringify({command: 'data', data}))
+    }
+    sendCmd(command, data) {
+        this.ws.send(JSON.stringify({command, data}))
     }
 }

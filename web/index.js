@@ -1,5 +1,7 @@
-let ws = new WebSocket('ws://'+document.location.host)
-ws.onmessage = message=>console.log(message.data)
-ws.onopen = ()=>{
-    ws.send('Hello server from JS')
-}
+let ws = new WSClient()
+ws.onconnect(()=>{
+    ws.sendCmd('test', 'hello')
+})
+ws.on('test', (data)=>{
+    console.log(data)
+})
