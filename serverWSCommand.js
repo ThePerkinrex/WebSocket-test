@@ -1,4 +1,12 @@
-const WebSocket = require('ws');
+let WebSocket
+try {
+    WebSocket = require('ws');
+} catch {
+    console.exception('This WebSocket implementation requires the `ws` library'+require('os').EOL+
+                        'To install it, type `npm i ws`')
+}
+
+
 
 class WSServer {
     /**
@@ -60,7 +68,6 @@ class WSServer {
     onCmd(event, fn){
         this.commandListeners[event] = fn
     }
-
 
     /**
      * Call this to deattach a callback from a command
